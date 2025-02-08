@@ -2,46 +2,13 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from "@/components/ui/navigation-menu";
-import { navigationMenuTriggerStyle } from "@/components/ui/navigation-menu";
+import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from "./navigation-menu";
+import { navigationMenuTriggerStyle } from "./navigation-menu";
 import LogoKiichain from "/public/images/Logo_KiiChain_2024.png";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Sun, Moon } from "lucide-react";
-import { useEffect } from "react";
-const components = [
-  {
-    title: "Alert Dialog",
-    href: "/docs/primitives/alert-dialog",
-    description: "A modal dialog that interrupts the user with important content and expects a response.",
-  },
-  {
-    title: "Hover Card",
-    href: "/docs/primitives/hover-card",
-    description: "For sighted users to preview content available behind a link.",
-  },
-  {
-    title: "Progress",
-    href: "/docs/primitives/progress",
-    description: "Displays an indicator showing the completion progress of a task, typically displayed as a progress bar.",
-  },
-  {
-    title: "Scroll-area",
-    href: "/docs/primitives/scroll-area",
-    description: "Visually or semantically separates content.",
-  },
-  {
-    title: "Tabs",
-    href: "/docs/primitives/tabs",
-    description: "A set of layered sections of content—known as tab panels—that are displayed one at a time.",
-  },
-  {
-    title: "Tooltip",
-    href: "/docs/primitives/tooltip",
-    description: "A popup that displays information related to an element when the element receives keyboard focus or the mouse hovers over it.",
-  },
-];
 
+// Define reusable list items
 const ListItem = ({ href, title, children }: { href: string; title: string; children: React.ReactNode }) => (
   <li>
     <NavigationMenuLink asChild>
@@ -57,23 +24,33 @@ const ListItem = ({ href, title, children }: { href: string; title: string; chil
 );
 
 export default function TopBar() {
-    const [isDark, setIsDark] = useState<boolean>(true);
-    useEffect(() => {
-        const savedTheme = localStorage.getItem("theme");
-        if (savedTheme === "light") {
-          setIsDark(false);
-        }
-      }, []);
-      const toggleTheme = () => {
-        const newTheme = !isDark;
-        setIsDark(newTheme);
-        localStorage.setItem("theme", newTheme ? "dark" : "light");
-        window.dispatchEvent(new Event("storage"));
-      };
-        return (
-    <div className={`fixed top-0 left-0 w-full shadow-md z-50 flex justify-center border-primary border-b-2 transition-all duration-300 ${isDark ? "bg-black text-white" : "bg-white text-black"}`}>
+  const [isDark, setIsDark] = useState<boolean>(true);
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme");
+    setIsDark(savedTheme === "dark");
+  }, []);
+
+  const toggleTheme = () => {
+    const newTheme = !isDark;
+    setIsDark(newTheme);
+    localStorage.setItem("theme", newTheme ? "dark" : "light");
+  };
+
+  return (
+    <div
+      className={`fixed top-0 left-0 w-full shadow-md z-50 flex justify-center border-primary border-b-2 transition-all duration-300 ${
+        isDark ? "bg-black text-white" : "bg-white text-black"
+      }`}
+    >
       <div className="relative border-r-2 border-primary p-2">
-        <Image src={LogoKiichain} alt="Kiichain" width={240} height={200}   className={`cursor-pointer transition-all duration-300 ${isDark ? "invert" : ""}`}/>
+        <Image
+          src={LogoKiichain}
+          alt="Kiichain"
+          width={240}
+          height={200}
+          className={`cursor-pointer transition-all duration-300 ${isDark ? "invert" : ""}`}
+        />
       </div>
       <div className="flex-1 flex justify-center h-24">
         <NavigationMenu>
@@ -111,6 +88,7 @@ export default function TopBar() {
               <NavigationMenuTrigger className="text-lg">Aprende</NavigationMenuTrigger>
               <NavigationMenuContent className="bg-[#764cb5] text-white shadow-lg rounded-lg">
                 <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+                  {/* Components list */}
                   {components.map((component) => (
                     <ListItem key={component.title} title={component.title} href={component.href}>
                       {component.description}
@@ -131,7 +109,21 @@ export default function TopBar() {
       <div className="flex items-center px-4 cursor-pointer" onClick={toggleTheme}>
         {isDark ? <Sun size={26} className="text-yellow-400 transition-all duration-300 hover:scale-110" /> : <Moon size={26} className="text-gray-800 transition-all duration-300 hover:scale-110" />}
       </div>
-      <Button className="bg-primary mr-2 mt-7 hover:bg-secondary">Iniciar sesión</Button>
+      {/* @ts-expect-error msg */}
+      <appkit-button className="mt-7 mx-7"/>
     </div>
   );
 }
+
+const components = [
+  {
+    title: "Alert Dialog",
+    href: "/docs/primitives/alert-dialog",
+    description: "A modal dialog that interrupts the user with important content and expects a response.",
+  },
+  {
+    title: "Hover Card",
+    href: "/docs/primitives/hover-card",
+    description: "For sighted users to preview content available behind a link.",
+  },
+];
