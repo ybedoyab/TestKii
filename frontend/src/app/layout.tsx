@@ -5,7 +5,6 @@ import "./globals.css";
 // import { AppSidebar } from "@/components/ui/app-sidebar";
 import { Button } from "@/components/ui/button";
 import { headers } from "next/headers"; // added
-import dynamic from "next/dynamic";
 import TopBar from "@/components/ui/TopBar";
 import ContextProvider from '../../config/ContextProvider';
 

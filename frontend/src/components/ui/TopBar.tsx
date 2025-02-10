@@ -4,11 +4,9 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   NavigationMenu,
-  NavigationMenuContent,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
-  NavigationMenuTrigger,
 } from "./navigation-menu";
 import { navigationMenuTriggerStyle } from "./navigation-menu";
 import LogoKiichain from "/public/images/Logo_KiiChain_2024.png";
@@ -16,29 +14,30 @@ import { useState, useEffect } from "react";
 import { Sun, Moon } from "lucide-react";
 
 // Define reusable list items
-const ListItem = ({
-  href,
-  title,
-  children,
-}: {
-  href: string;
-  title: string;
-  children: React.ReactNode;
-}) => (
-  <li>
-    <NavigationMenuLink asChild>
-      <a
-        className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-        href={href}
-      >
-        <div className="text-sm font-medium leading-none">{title}</div>
-        <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-          {children}
-        </p>
-      </a>
-    </NavigationMenuLink>
-  </li>
-);
+// const ListItem = ({
+//   href,
+//   title,
+//   children,
+// }: {
+//   href: string;
+//   title: string;
+//   children: React.ReactNode;
+// }) => (
+  
+//   <li>
+//     <NavigationMenuLink asChild>
+//       <a
+//         className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+//         href={href}
+//       >
+//         <div className="text-sm font-medium leading-none">{title}</div>
+//         <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+//           {children}
+//         </p>
+//       </a>
+//     </NavigationMenuLink>
+//   </li>
+// );
 
 export default function TopBar() {
   const [isDark, setIsDark] = useState<boolean>(true);
@@ -189,17 +188,17 @@ export default function TopBar() {
   );
 }
 
-const components = [
-  {
-    title: "Alert Dialog",
-    href: "/docs/primitives/alert-dialog",
-    description:
-      "A modal dialog that interrupts the user with important content and expects a response.",
-  },
-  {
-    title: "Hover Card",
-    href: "/docs/primitives/hover-card",
-    description:
-      "For sighted users to preview content available behind a link.",
-  },
-];
+// const components = [
+//   {
+//     title: "Alert Dialog",
+//     href: "/docs/primitives/alert-dialog",
+//     description:
+//       "A modal dialog that interrupts the user with important content and expects a response.",
+//   },
+//   {
+//     title: "Hover Card",
+//     href: "/docs/primitives/hover-card",
+//     description:
+//       "For sighted users to preview content available behind a link.",
+//   },
+// ];

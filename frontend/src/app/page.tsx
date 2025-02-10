@@ -12,8 +12,6 @@ import { useEffect, useState } from "react";
 
 const images = ["/images/ia.jpg", "/images/ia2.jpg", "/images/ia3.jpg"];
 
-const logo = ["/images/Logo_KiiChain_2024.png"];
-
 export default function Home() {
   const [isDark, setIsDark] = useState(true);
   useEffect(() => {

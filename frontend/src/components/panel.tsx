@@ -20,7 +20,7 @@ const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS!;
 const CONTRACT_ABI = abi;
 
 const Panel: React.FC = () => {
-  const { account, connectWallet, disconnectWallet } = useWallet(); // Acceso al contexto global de la wallet
+  const { account, disconnectWallet } = useWallet(); // Acceso al contexto global de la wallet
   const [contract, setContract] = useState<ethers.Contract | null>(null);
   const [isOwner, setIsOwner] = useState<boolean>(false);
   const [isWhitelisted, setIsWhitelisted] = useState<boolean>(false);

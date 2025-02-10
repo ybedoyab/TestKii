@@ -7,6 +7,7 @@ Este repositorio contiene el contrato inteligente `PrivateInfoStorage` desplegad
 ## 🚀 Detalles del Despliegue
 
 - **Dirección del Contrato:** `0x9f41f53a27b34624ef4df0c53b6122ebd060552c`
+- **URL del contrato:** `https://app.kiichain.io/account/0x9f41f53a27b34624ef4df0c53b6122ebd060552c`
 - **Hash de la Transacción:** `0xae6b9548ee73a8327a0d3090a7457a40cd23befdcffa5f23cf97e1823ae02438`
 - **Red:** **Kiichain Testnet Oro**
 - **Número de Bloque:** `12030276`
