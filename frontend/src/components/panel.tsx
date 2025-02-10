@@ -103,20 +103,27 @@ const Panel: React.FC = () => {
     <div className="flex items-center justify-center min-h-screen bg-gray-50 p-6">
       {/* Dialog para conectar wallet */}
       {!account && (
-      <Dialog open={!account}>
-        <DialogContent className="bg-white bg-opacity-90">
-        <DialogHeader>
-          <DialogTitle>Conecta tu Wallet</DialogTitle>
-        </DialogHeader>
-        <p className="text-gray-600 mb-4">
-          Para acceder al panel, por favor conecta tu wallet.
-        </p>
+  <Dialog open={!account}>
+    <DialogContent className="flex flex-col items-center justify-center bg-white bg-opacity-90 rounded-lg shadow-lg p-8 max-w-sm mx-auto">
+      <DialogHeader className="text-center">
+        <DialogTitle className="text-xl font-bold text-primary mb-4">
+          Conecta tu Wallet
+        </DialogTitle>
+      </DialogHeader>
+      <p className="text-white  text-center mb-6">
+        Para acceder al panel, por favor conecta tu wallet.
+      </p>
 
-        {/* @ts-expect-error msg */}
-        <appkit-button className="mt-7 mx-7" />
-        </DialogContent>
-      </Dialog>
-      )}
+      {/* @ts-expect-error msg */}
+      <appkit-button className="mt-4 text-white font-medium px-6 py-3 rounded-md transition-all duration-300" />
+
+      <p className="text-white text-sm mt-4">
+        Asegúrate de usar una wallet compatible.
+      </p>
+    </DialogContent>
+  </Dialog>
+)}
+
 
       {account && (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl">
