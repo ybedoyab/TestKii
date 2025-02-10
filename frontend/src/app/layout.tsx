@@ -6,7 +6,7 @@ import "./globals.css";
 import { Button } from "@/components/ui/button";
 import { headers } from "next/headers"; // added
 import TopBar from "@/components/ui/TopBar";
-import ContextProvider from '../../config/ContextProvider';
+import ContextProvider from "../../config/ContextProvider";
 
 export const metadata: Metadata = {
   title: "Private Storage | KiiChain",
@@ -37,14 +37,20 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {/* <WagmiProvider config={config}> */}
-          <TopBar />
-          <ContextProvider cookies={cookies} account={null} connectWallet={async function connectWallet() { "use server"; }}>
+        <TopBar />
+        <ContextProvider
+          cookies={cookies}
+          account={null}
+          connectWallet={async function connectWallet() {
+            "use server";
+          }}
+        >
           {/* <SidebarProvider className="mt-10"> */}
-            {/* <AppSidebar /> */}
-            <main className="flex-1 mt-16 w-full bg-[#f1f1f2]">
-              {/* <SidebarTrigger /> */}
-              {children}
-            </main>
+          {/* <AppSidebar /> */}
+          <main className="flex-1 mt-16 w-full bg-[#f1f1f2]">
+            {/* <SidebarTrigger /> */}
+            {children}
+          </main>
           {/* </SidebarProvider> */}
           <Button className="fixed bottom-[5px] right-4 bg-primary px-10 py-6 mr-4 text-white shadow-lg hover:bg-secondary text-lg transition-all duration-300 transform hover:scale-110 rounded-2xl">
             <svg
@@ -58,7 +64,7 @@ export default async function RootLayout({
             </svg>
             Soporte
           </Button>
-          </ContextProvider>
+        </ContextProvider>
         {/* </WagmiProvider> */}
       </body>
     </html>
