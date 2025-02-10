@@ -12,6 +12,8 @@ import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
 interface ContextProviderProps {
   children: ReactNode;
   cookies: string;
+  account: string | null;
+  connectWallet: () => void; // Add connectWallet property
 }
 
 const Context = createContext({});
@@ -57,24 +59,31 @@ createAppKit({
 });
 
 // Crear contexto de Wallet
-interface WalletContextType {
+export interface WalletContextType {
   account: string | null;
-  disconnectWallet: () => void;
+  connectWallet: () => void; // Add connectWallet to the context type
+  disconnectWallet: () => void; // Add disconnectWallet to the context type
+  // other properties...
 }
 
-const WalletContext = createContext<WalletContextType | undefined>(undefined);
+const WalletContext = createContext<WalletContextType>({
+  account: null,
+  connectWallet: () => {}, // Provide a default implementation
+  disconnectWallet: () => {}, // Provide a default implementation
+  // other properties...
+});
 
-const WalletProvider: React.FC<ContextProviderProps> = ({ children, cookies }) => {
+const WalletProvider: React.FC<ContextProviderProps> = ({ children, cookies, account, connectWallet }) => {
   return (
     <QueryClientProvider client={queryClient}>
       <WagmiProvider config={wagmiConfig}>
-        <WalletProviderInner children={children} cookies={cookies} />
+        <WalletProviderInner children={children} cookies={cookies} account={account} connectWallet={connectWallet} />
       </WagmiProvider>
     </QueryClientProvider>
   );
 };
 
-const WalletProviderInner: React.FC<ContextProviderProps> = ({ children, cookies }) => {
+const WalletProviderInner: React.FC<ContextProviderProps> = ({ children, cookies, connectWallet }) => {
   const { address, isConnected } = useAccount(); // Ahora está en el cuerpo del componente
   const { disconnect } = useDisconnect();
   const [account, setAccount] = useState<string | null>(null);
@@ -94,7 +103,7 @@ const WalletProviderInner: React.FC<ContextProviderProps> = ({ children, cookies
 
   return (
     <QueryClientProvider client={queryClient}>
-      <WalletContext.Provider value={{ account, disconnectWallet }}>
+      <WalletContext.Provider value={{ account, connectWallet, disconnectWallet }}>
         <Context.Provider value={{ cookies }}>{children}</Context.Provider>
       </WalletContext.Provider>
     </QueryClientProvider>

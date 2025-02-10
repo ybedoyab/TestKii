@@ -2,52 +2,59 @@
 
 import React, { useState, useEffect } from "react";
 import { ethers } from "ethers";
+import { useWallet } from "../../config/ContextProvider"; // Importar el contexto global de la wallet
 import abi from "../../abi.json"; // Importar el ABI del contrato
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
-// Cargar la dirección y el ABI desde las variables de entorno
+// Cargar la dirección del contrato desde las variables de entorno
 const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS!;
 const CONTRACT_ABI = abi;
 
 const Panel: React.FC = () => {
-  const [provider, setProvider] = useState<ethers.providers.Web3Provider | null>(null);
+  const { account, connectWallet, disconnectWallet } = useWallet(); // Acceso al contexto global de la wallet
   const [contract, setContract] = useState<ethers.Contract | null>(null);
-  const [account, setAccount] = useState<string | null>(null);
   const [isOwner, setIsOwner] = useState<boolean>(false);
   const [isWhitelisted, setIsWhitelisted] = useState<boolean>(false);
   const [privateInfo, setPrivateInfo] = useState<string | null>(null);
   const [whitelist, setWhitelist] = useState<string[]>([]);
   const [newInfo, setNewInfo] = useState<string>("");
 
-  // Conectar a la wallet del usuario
-  const connectWallet = async () => {
-    if (!window.ethereum) {
-      alert("MetaMask no está instalado. Por favor, instálalo para continuar.");
-      return;
+  useEffect(() => {
+    if (account) {
+      initializeContract();
     }
+  }, [account]);
 
+  // Inicializar contrato
+  const initializeContract = async () => {
     try {
-      const browserProvider = new ethers.providers.Web3Provider(window.ethereum); // ethers v6
-      const signer = await browserProvider.getSigner();
-      const accounts = await browserProvider.listAccounts();
-
-      setProvider(browserProvider);
-      setAccount(accounts[0] || null);
-
-      const deployedContract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+      const deployedContract = new ethers.Contract(
+        CONTRACT_ADDRESS,
+        CONTRACT_ABI,
+        signer
+      );
       setContract(deployedContract);
 
-      // Verifica si el usuario es el propietario
+      // Verificar si el usuario es el propietario
       const owner = await deployedContract.owner();
-      setIsOwner(owner.toLowerCase() === accounts[0]?.toLowerCase());
+      setIsOwner(owner.toLowerCase() === account?.toLowerCase());
 
-      // Verifica si el usuario está en la w"hitelist
-      const whitelisted = await deployedContract.isWhitelisted(accounts[0]);
+      // Verificar si el usuario está en la whitelist
+      const whitelisted = await deployedContract.isWhitelisted(account);
       setIsWhitelisted(whitelisted);
-
-      alert(`Conectado a la wallet: ${accounts[0]}`);
     } catch (error) {
-      console.error("Error al conectar a la wallet:", error);
-      alert("No se pudo conectar a la wallet.");
+      console.error("Error al inicializar el contrato:", error);
     }
   };
 
@@ -85,7 +92,7 @@ const Panel: React.FC = () => {
       const tx = await contract.updatePrivateInfo(newInfo);
       await tx.wait();
       alert("Información privada actualizada correctamente.");
-      setNewInfo(""); // Limpia el campo del formulario
+      setNewInfo(""); // Limpiar campo de formulario
     } catch (error) {
       console.error("Error al actualizar la información privada:", error);
       alert("No se pudo actualizar la información privada.");
@@ -93,73 +100,127 @@ const Panel: React.FC = () => {
   };
 
   return (
-    <div className="p-6 bg-gray-100 rounded-lg shadow-md">
-      <h1 className="text-xl font-bold mb-4">Panel de Usuario</h1>
+    <div className="p-6 bg-gray-50 min-h-screen mt-10">
+      {/* Dialog para conectar wallet */}
+      {!account && (
+        <Dialog open={!account}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Conecta tu Wallet</DialogTitle>
+            </DialogHeader>
+            <p className="text-gray-600 mb-4">
+              Para acceder al panel, por favor conecta tu wallet.
+            </p>
 
-      {/* Botón para conectar la wallet */}
-      <button
-        onClick={connectWallet}
-        className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
-      >
-        {account ? `Wallet Conectada: ${account.slice(0, 6)}...${account.slice(-4)}` : "Conectar Wallet"}
-      </button>
-
-      {/* Mostrar información privada si el usuario está en la whitelist */}
-      {isWhitelisted && privateInfo && (
-        <div className="mt-4 p-4 bg-white rounded-md shadow">
-          <h2 className="text-lg font-semibold">Información Privada:</h2>
-          <p className="text-gray-700">{privateInfo}</p>
-        </div>
+            {/* @ts-expect-error msg */}
+            <appkit-button className="mt-7 mx-7" />
+          </DialogContent>
+        </Dialog>
       )}
 
-      {/* Botón para obtener información privada */}
-      {isWhitelisted && (
-        <button
-          onClick={fetchPrivateInfo}
-          className="mt-4 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition"
-        >
-          Ver Información Privada
-        </button>
-      )}
+      {account && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Información de la wallet */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Información de la Wallet</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p>
+                Wallet conectada:{" "}
+                <span className="font-semibold text-blue-500">
+                  {account.slice(0, 6)}...{account.slice(-4)}
+                </span>
+              </p>
+              <Button
+                onClick={() => disconnectWallet()}
+                className="mt-4"
+                variant="secondary"
+              >
+                Desconectar Wallet
+              </Button>
+            </CardContent>
+          </Card>
 
-      {/* Mostrar formulario para actualizar información privada (solo propietario) */}
-      {isOwner && (
-        <div className="mt-6">
-          <h2 className="text-lg font-semibold mb-2">Actualizar Información Privada</h2>
-          <input
-            type="text"
-            value={newInfo}
-            onChange={(e) => setNewInfo(e.target.value)}
-            className="px-4 py-2 border rounded-md w-full mb-2"
-            placeholder="Nueva información privada"
-          />
-          <button
-            onClick={updatePrivateInfo}
-            className="px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition"
-          >
-            Actualizar Información
-          </button>
-        </div>
-      )}
+          {/* Información privada */}
+          {isWhitelisted && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Información Privada</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p>{privateInfo || "No hay información disponible."}</p>
+                <Button
+                  onClick={fetchPrivateInfo}
+                  className="mt-4"
+                  variant="secondary"
+                >
+                  Ver Información Privada
+                </Button>
+              </CardContent>
+            </Card>
+          )}
 
-      {/* Mostrar la lista de direcciones de la whitelist (solo propietario) */}
-      {isOwner && (
-        <div className="mt-6">
-          <h2 className="text-lg font-semibold mb-2">Direcciones en la Whitelist</h2>
-          <button
-            onClick={fetchWhitelist}
-            className="px-4 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-600 transition"
-          >
-            Ver Whitelist
-          </button>
-          {whitelist.length > 0 && (
-            <ul className="mt-4 list-disc list-inside">
-              {whitelist.map((address, index) => (
-                <li key={index} className="text-gray-700">
-                  {address}
-                </li>
-              ))}
-            </ul>
+          {!isWhitelisted && (
+            <Card>
+              <CardHeader>
+                <CardTitle>No estás en la Whitelist</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p>
+                  No tienes acceso a la información privada porque no estás en
+                  la whitelist.
+                </p>
+              </CardContent>
+            </Card>
+          )}
+
+          {isOwner && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Actualizar Información Privada</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Label htmlFor="new-info">Nueva información</Label>
+                <Input
+                  id="new-info"
+                  value={newInfo}
+                  onChange={(e) => setNewInfo(e.target.value)}
+                  placeholder="Escribe nueva información"
+                  className="mb-4"
+                />
+                <Button onClick={updatePrivateInfo} variant="secondary">
+                  Actualizar Información
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Mostrar whitelist (solo propietario) */}
+          {isOwner && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Whitelist</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Button
+                  onClick={fetchWhitelist}
+                  className="mb-4"
+                  variant="secondary"
+                >
+                  Ver Whitelist
+                </Button>
+                {whitelist.length > 0 && (
+                  <ul className="list-disc list-inside">
+                    {whitelist.map((address, index) => (
+                      <li key={index} className="text-gray-700">
+                        {address}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </CardContent>
+            </Card>
           )}
         </div>
       )}

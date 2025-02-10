@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/ui/app-sidebar";
+// import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+// import { AppSidebar } from "@/components/ui/app-sidebar";
 import { Button } from "@/components/ui/button";
 import { headers } from "next/headers"; // added
 import dynamic from "next/dynamic";
@@ -10,8 +10,8 @@ import TopBar from "@/components/ui/TopBar";
 import ContextProvider from '../../config/ContextProvider';
 
 export const metadata: Metadata = {
-  title: "AppKit Example App",
-  description: "Powered by WalletConnect",
+  title: "Private Storage | KiiChain",
+  description: "Done by Yul",
 };
 
 const geistSans = Geist({
@@ -39,14 +39,14 @@ export default async function RootLayout({
       >
         {/* <WagmiProvider config={config}> */}
           <TopBar />
-          <ContextProvider cookies={cookies}>
-          <SidebarProvider className="mt-10">
-            <AppSidebar />
+          <ContextProvider cookies={cookies} account={null} connectWallet={async function connectWallet() { "use server"; }}>
+          {/* <SidebarProvider className="mt-10"> */}
+            {/* <AppSidebar /> */}
             <main className="flex-1 mt-16 w-full bg-[#f1f1f2]">
-              <SidebarTrigger />
+              {/* <SidebarTrigger /> */}
               {children}
             </main>
-          </SidebarProvider>
+          {/* </SidebarProvider> */}
           <Button className="fixed bottom-[5px] right-4 bg-primary px-10 py-6 mr-4 text-white shadow-lg hover:bg-secondary text-lg transition-all duration-300 transform hover:scale-110 rounded-2xl">
             <svg
               xmlns="http://www.w3.org/2000/svg"
