@@ -9,6 +9,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import Rotation from "@/components/ui/rotation";
 import { useEffect, useState } from "react";
+
 const images = [
   "/images/ia.png",
   "/images/Logo_KiiChain_2024.png",

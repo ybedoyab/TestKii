@@ -5,14 +5,13 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/ui/app-sidebar";
 import { Button } from "@/components/ui/button";
 import { headers } from "next/headers"; // added
-import dynamic from 'next/dynamic';
+import dynamic from "next/dynamic";
 import TopBar from "@/components/ui/TopBar";
-
 import ContextProvider from '../../config/ContextProvider';
 
 export const metadata: Metadata = {
   title: "AppKit Example App",
-  description: "Powered by WalletConnect"
+  description: "Powered by WalletConnect",
 };
 
 const geistSans = Geist({
@@ -31,13 +30,16 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const headersList = await headers();
-  const cookies = headersList.get('cookie') || '';
+  const cookies = headersList.get("cookie") || "";
 
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <TopBar />
-        <ContextProvider cookies={cookies}>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
+        {/* <WagmiProvider config={config}> */}
+          <TopBar />
+          <ContextProvider cookies={cookies}>
           <SidebarProvider className="mt-10">
             <AppSidebar />
             <main className="flex-1 mt-16 w-full bg-[#f1f1f2]">
@@ -57,7 +59,8 @@ export default async function RootLayout({
             </svg>
             Soporte
           </Button>
-        </ContextProvider>
+          </ContextProvider>
+        {/* </WagmiProvider> */}
       </body>
     </html>
   );

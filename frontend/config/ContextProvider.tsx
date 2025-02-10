@@ -1,57 +1,113 @@
+"use client";
 
-// context/index.tsx
-'use client'
+import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { createConfig, WagmiConfig, useAccount, useDisconnect, WagmiProvider } from "wagmi";
+import { type Chain } from "viem";
+import { http } from "viem"; // Proveedor HTTP actualizado
+import { kiichainTestnetOro } from "./chains/kiichainTestnetOro"; // Red personalizada
+import { createAppKit } from "@reown/appkit";
+import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
 
-import { wagmiAdapter, projectId } from '../config'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { createAppKit } from '@reown/appkit/react' 
-import { mainnet, arbitrum, avalanche, base, optimism, polygon } from '@reown/appkit/networks'
-import { goerli } from '@wagmi/core/chains';
-
-import React, { type ReactNode } from 'react'
-import { cookieToInitialState, WagmiProvider, type Config } from 'wagmi'
-
-// Set up queryClient
-const queryClient = new QueryClient()
-
-if (!projectId) {
-  throw new Error('Project ID is not defined')
+interface ContextProviderProps {
+  children: ReactNode;
+  cookies: string;
 }
 
-// Set up metadata
+const Context = createContext({});
+
+// Crear queryClient para React Query
+const queryClient = new QueryClient();
+
+// Definir las redes soportadas
+const chains: [Chain, ...Chain[]] = [kiichainTestnetOro];
+
+// Crear configuración de Wagmi **sin conectores**
+const wagmiConfig = createConfig({
+  chains,
+  transports: chains.reduce((acc: { [key: number]: ReturnType<typeof http> }, chain) => {
+    acc[chain.id] = http();
+    return acc;
+  }, {}),
+});
+
+// Configurar AppKit con WagmiAdapter
+const projectId = "77bfa493758f2db9babc5db5751d003a"; // Reemplaza con tu ID real
 const metadata = {
-  name: 'TestKii',
-  description: 'AppKit Example',
-  url: 'https://reown.com/appkit', // origin must match your domain & subdomain
-  icons: ['https://assets.reown.com/reown-profile-pic.png']
+  name: "Tu Aplicación Blockchain",
+  description: "Una aplicación integrada con Web3",
+  url: "https://tusitio.com",
+  icons: ["https://tusitio.com/icon.png"],
+};
+
+createAppKit({
+  adapters: [new WagmiAdapter({ networks: chains, projectId })],
+  projectId,
+  networks: chains,
+  metadata,
+  features: {
+    email: true,
+    socials: ["google", "x", "github", "discord", "apple", "facebook", "farcaster"],
+    emailShowWallets: true,
+  },
+  allWallets: "SHOW",
+  themeVariables: {
+    "--w3m-accent": "#764cb5",
+  },
+});
+
+// Crear contexto de Wallet
+interface WalletContextType {
+  account: string | null;
+  disconnectWallet: () => void;
 }
 
-// Create the modal
-const modal = createAppKit({
-    adapters: [wagmiAdapter],
-    projectId,
-    networks: [mainnet, arbitrum, avalanche, base, optimism, polygon, goerli],
-    metadata,
-    features: {
-      email: true, // default to true
-      socials: ['google', 'x', 'github', 'discord', 'apple', 'facebook', 'farcaster'],
-      emailShowWallets: true, // default to true
-    },
-    allWallets: 'SHOW', // default to SHOW
-    themeVariables: {
-    '--w3m-accent': '#764cb5',
-  }
-  })
+const WalletContext = createContext<WalletContextType | undefined>(undefined);
 
-function ContextProvider({ children, cookies }: { children: ReactNode; cookies: string | null }) {
-  const initialState = cookieToInitialState(wagmiAdapter.wagmiConfig as Config, cookies)
+const WalletProvider: React.FC<ContextProviderProps> = ({ children, cookies }) => {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <WagmiProvider config={wagmiConfig}>
+        <WalletProviderInner children={children} cookies={cookies} />
+      </WagmiProvider>
+    </QueryClientProvider>
+  );
+};
+
+const WalletProviderInner: React.FC<ContextProviderProps> = ({ children, cookies }) => {
+  const { address, isConnected } = useAccount(); // Ahora está en el cuerpo del componente
+  const { disconnect } = useDisconnect();
+  const [account, setAccount] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isConnected && address) {
+      setAccount(address);
+      console.log("Wallet conectada:", address);
+    }
+  }, [isConnected, address]);
+
+  const disconnectWallet = () => {
+    disconnect();
+    setAccount(null);
+    console.log("Wallet desconectada");
+  };
 
   return (
-    <WagmiProvider config={wagmiAdapter.wagmiConfig as Config} initialState={initialState}>
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-    </WagmiProvider>
-  )
-}
+    <QueryClientProvider client={queryClient}>
+      <WalletContext.Provider value={{ account, disconnectWallet }}>
+        <Context.Provider value={{ cookies }}>{children}</Context.Provider>
+      </WalletContext.Provider>
+    </QueryClientProvider>
+  );
+};
 
-export default ContextProvider
-    
+// Hook para usar el contexto de la wallet
+export const useWallet = () => {
+  const context = useContext(WalletContext);
+  if (!context) {
+    throw new Error("useWallet debe usarse dentro de WalletProvider");
+  }
+  return context;
+};
+
+export default WalletProvider;
